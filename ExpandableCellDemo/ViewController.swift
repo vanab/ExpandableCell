@@ -110,6 +110,7 @@ extension ViewController: ExpandableDelegate {
     func expandableTableView(_ expandableTableView: ExpandableTableView, expandedCell: UITableViewCell, didSelectExpandedRowAt indexPath: IndexPath) {
         if let cell = expandedCell as? ExpandedCell {
             print("\(cell.titleLabel.text ?? "")")
+            print(expandableTableView.)
         }
     }
     

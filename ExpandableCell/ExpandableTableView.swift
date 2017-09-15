@@ -48,7 +48,7 @@ extension ExpandableTableView: UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    private func open(indexPath: IndexPath, delegate: ExpandableDelegate) {
+    public func open(indexPath: IndexPath, delegate: ExpandableDelegate) {
         let originalIndexPath = expandableProcessor.original(indexPath: indexPath)
         guard let expandedCells = delegate.expandableTableView(self, expandedCellsForRowAt: originalIndexPath) else { return }
         guard let expandedHeights = delegate.expandableTableView(self, heightsForExpandedRowAt: originalIndexPath) else { return }
@@ -60,7 +60,7 @@ extension ExpandableTableView: UITableViewDataSource, UITableViewDelegate {
         cell.open()
     }
     
-    private func close(indexPath: IndexPath) {
+    public func close(indexPath: IndexPath) {
         expandableProcessor.delete(indexPath: indexPath)
         guard let indexPaths = expandableProcessor.willRemovedIndexPaths else { return }
         self.deleteRows(at: indexPaths, with: animation)
@@ -113,6 +113,27 @@ extension ExpandableTableView {
         }
 
         self.deleteRows(at: expandedIndexPaths, with: animation)
+    }
+    
+    public func openAt(indexPath: IndexPath) {
+        guard let delegate = expandableDelegate else { return }
+        
+        let expandedData = expandableProcessor.isExpandedCell(at: indexPath)
+        if !expandedData.isExpandedCell {
+            delegate.expandableTableView(self, didSelectRowAt: indexPath)
+            if expandableProcessor.isExpandable(at: indexPath) {
+                open(indexPath: indexPath, delegate: delegate)
+            } else {
+                close(indexPath: indexPath)
+            }
+        } else {
+            delegate.expandableTableView(self, didSelectExpandedRowAt: indexPath)
+            delegate.expandableTableView(self, expandedCell: expandedData.expandedCell, didSelectExpandedRowAt: indexPath)
+        }
+    }
+    
+    public func isExpandable(at indexPath: IndexPath) -> Bool {
+        return expandableProcessor.isExpandable(at: indexPath)
     }
     
     public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
